@@ -1,0 +1,143 @@
+<?php
+
+/**
+ * Define path constant 
+ */
+define("BTM_SOCIAL_MODULE_PATH", drupal_get_path('module', 'btm_social_actions'));
+
+/**
+ * implements hook_help()
+ * */
+function btm_social_actions_help($path, $arg) {
+    $output = '';
+    switch ($path) {
+        case "admin/help#btm_social_actions":
+            $output = '<p>' . t("Displays Like, Tweet/Follow, and +1 interactions in a configurable block") . '</p>';
+            break;
+    }
+    return $output;
+}
+
+/**
+ * implements hook_perm() 
+ * */
+function btm_social_actions_perm() {
+
+    return array('administer btm_social_actions');
+}
+
+/**
+ * implements hook_admin()
+ * */
+function btm_social_actions_admin() {
+
+    $form = array();
+
+
+    $form['btm_social_actions_facebook'] = array(
+        '#type' => 'checkbox',
+        '#default_value' => variable_get('btm_social_actions_facebook', 1),
+        '#title' => t('Display Facebook Like Button')
+    );
+
+    $form['btm_social_actions_twitter'] = array(
+        '#type' => 'checkbox',
+        '#default_value' => variable_get('btm_social_actions_twitter', 1),
+        '#title' => t('Display Twitter Tweet Button')
+    );
+
+    $form['btm_social_actions_plus'] = array(
+        '#type' => 'checkbox',
+        '#default_value' => variable_get('btm_social_actions_plus', 1),
+        '#title' => t('Display Google Plus One Button')
+    );
+
+    $form['btm_social_actions_display'] = array(
+        '#type' => 'select',
+        '#default_value' => variable_get('btm_social_actions_display', 'horizontal'),
+        '#title' => t('Vertical or Horizontal Display?'),
+        '#options' => array(
+            'vertical' => 'Vertical',
+            'horizontal' => 'Horizontal'
+        )
+    );
+
+    $form['btm_social_actions_position'] = array(
+        '#type' => 'select',
+        '#default_value' => variable_get('btm_social_actions_position', 'side'),
+        '#title' => t('Where should the count for each action be placed?'),
+        '#options' => array(
+            'side' => 'Side',
+            'top' => 'Top'
+        )
+    );
+    return system_settings_form($form);
+}
+
+/**
+ * implements hook_submit() 
+ * */
+function btm_social_actions_admin_submit($form, &$form_state) {
+    db_query('TRUNCATE TABLE {btm_social_actions_settings}');
+    drupal_write_record('btm_social_actions_settings', $form_state['values']);
+}
+
+/**
+ * implements hook_menu()
+ * */
+function btm_social_actions_menu() {
+
+    $items = array();
+
+    $items['admin/settings/btm_social_actions'] = array(
+        'title' => t('Configure Social Actions'),
+        'description' => t('Sets up many common options for the display of the social actions.'),
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('btm_social_actions_admin'),
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM
+    );
+    return $items;
+}
+
+/**
+ * implements hook_block()
+ * */
+function btm_social_actions_block($op = 'list', $delta = 0) {
+    $block = array();
+    switch ($op) {
+        case 'list' :
+            $block[0]["info"] = t("BTM Social Actions");
+            break;
+
+        case 'view':
+            $settings = array(
+                'display' => variable_get('btm_social_actions_display', 'horizontal'),
+                'position' => variable_get('btm_social_actions_position', 'side'),
+                'facebook' => variable_get('btm_social_actions_facebook', 1),
+                'twitter' => variable_get('btm_social_actions_twitter', 1),
+                'plus_one' => variable_get('btm_social_actions_plus', 1)
+                    );
+            $block["content"] = theme('btm_social_actions_widget', $settings);
+            break;
+    }
+    return $block;
+}
+
+/**
+ * implements hook_theme() 
+ * */
+function btm_social_actions_theme() {
+    $theme = array();
+    $path = BTM_SOCIAL_MODULE_PATH . '/theme';
+    //This works in our theme implementation.
+    $theme['btm_social_actions_widget'] = array(
+        'file' => 'btm_social_actions.theme.inc',
+        'path' => $path,
+        'pattern' => 'btm_social_actions__',
+        'template' => 'btm-social-actions-widget',
+        'arguments' => array('settings' => array())
+    );
+    return $theme;
+}
+

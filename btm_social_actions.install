@@ -1,0 +1,66 @@
+<?php
+
+/**
+* implements hook_schema()
+**/
+
+function btm_social_actions_schema() {
+
+  $schema['btm_social_actions_settings'] = array(
+     
+     'description' => t('Available display settings for +1, Twitter, and FaceBook like'),
+     'fields' => array (
+         
+        'btm_social_actions_facebook'=> array (
+                'description'=> t('Show Facebook'),
+                'type' => 'int',
+                'length' => 1,
+                'default' => 1 ),
+
+        'btm_social_actions_twitter'=> array (
+                'description'=> t('Show Twitter'),
+                'type' => 'int',
+                'length' => 1,
+                'default' => 1 ),
+        
+        'btm_social_actions_facebook'=> array (
+                'description'=> t('Show Plus One'),
+                'type' => 'int',
+                'length' => 1,
+                'default' => 1 ),
+     		
+     	'btm_social_actions_position' => array (
+		'description' => t('Count position'),
+     		'type' => 'varchar',
+     		'length' => 255,
+     		'default' => ''),
+     		
+     	'btm_social_actions_display' => array (
+		'description' => t('Vertical/horizontal display'),
+     		'type' => 'varchar',
+                'length'=>255,
+     		'default' => '')
+     		     
+     ) //fields array
+     
+  ); //schema def array
+  
+  return $schema;
+  
+} //function
+
+/**
+* implements hook_install()
+**/
+
+function btm_social_actions_install() {
+  drupal_install_schema('btm_social_actions');
+}
+
+/**
+* implements hook_uninstall()
+**/ 
+
+function btm_social_actions_uninstall() {
+  drupal_uninstall_schema('btm_social_actions');
+}
