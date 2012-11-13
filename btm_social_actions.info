@@ -1,4 +1,0 @@
-name = Social actions block
-description = Creates a block for social actions, also integrates Google Analytics tracking
-core = 6.x
-dependencies[] = googleanalytics
